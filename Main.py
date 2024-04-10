@@ -28,25 +28,31 @@ def firstplayerchoose():
         player_turn = "X"      
     elif response=="O":
         player_turn = "O"
-
 firstplayerchoose()
-def handleplayermove(row, col, text):
+def handlendgame(result):
+    win = CTkMessagebox.CTkMessagebox(title="Game Over", message=f"{player_turn} wins!", icon="info", option_2="Play Again", option_1="Exit The App")
+    if(result == True):
+        win
+    else:
+        win.configure(title="Game Over", message="It's a draw!", icon="info", option_2="Play Again", option_1="Exit The App")
+    win.get() == "Exit The App" and app.destroy()
+    win.get() == "Play Again" and firstplayerchoose()
+def handleplayermove(row, col):
     btn = buttons[row][col]
     global player_turn
-    if(text != "X" and text != "O"):
-        if(player_turn == "X"):
-            btn.configure(text = "X", font = xfont, text_color = "black")
-            print(player_turn)
-            handleplayerturn(True)
+    if(btn._state !="disabled"):
+        btn.configure(text = player_turn, font = xfont, text_color = "black", state="disabled")
+        if(winconditions() == 1):
+            handlendgame(True)
+        elif(winconditions() == 2):
+            handlendgame(False)
         else:
-            btn.configure(text = "O", font = xfont, text_color = "black")
-            print(player_turn)
-            handleplayerturn(False)
+            handleplayerturn(player_turn)
     else:
-            CTkMessagebox.CTkMessagebox(title="Arleady taken", message="The field is already occupied", icon="cancel")
+            CTkMessagebox.CTkMessagebox(title="Arleady Taken", message="The field is already occupied", icon="cancel")
 def handleplayerturn(lastturn):
     global player_turn
-    if lastturn == True:
+    if lastturn == "X":
         player_turn = "O"
         currentplayerlabel.configure(text = f"Current Player: {player_turn}")
     else:
@@ -64,13 +70,25 @@ buttons = [[None for _ in range(3)] for _ in range(3)]
 for row in range(3):
     for col in range(3):
         btn = customtkinter.CTkButton(board, fg_color= "#e6e6e6", border_width= 0, border_color = "white", font = mainfont, corner_radius = 0, hover_color= "#cccccc", text="test")
-        btn.configure(command=partial(handleplayermove, row, col, btn._text))
+        btn.configure(command=partial(handleplayermove, row, col))
         btn.grid(row=row, column=col, sticky="nsew", padx=10, pady=10)
         board.grid_columnconfigure(col, weight=1)
         board.grid_rowconfigure(row, weight=1)
         buttons[row][col] = btn
     
-    
+def winconditions():
+    for row in range(3):
+        if buttons[row][0]._text == buttons[row][1]._text == buttons[row][2]._text != "test":
+            return 1
+    for col in range(3):
+        if buttons[0][col]._text == buttons[1][col]._text == buttons[2][col]._text != "test":
+            return 1
+    if buttons[0][0]._text == buttons[1][1]._text == buttons[2][2]._text != "test":
+        return 1
+    if buttons[0][2]._text == buttons[1][1]._text == buttons[2][0]._text != "test":
+        return 1
+    if all(button._text != 'test' for row in buttons for button in row):
+        return 2
 #App run
 app.mainloop()
 
